@@ -11,5 +11,9 @@ name = "blog-client"
 version = "0.1.0"
 
 [[package]]
+name = "blog-server"
+version = "0.1.0"
+
+[[package]]
 name = "blog-wasm"
 version = "0.1.0"
