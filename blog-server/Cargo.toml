@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+actix-cors = "0.7"
 actix-web = "4"
 argon2 = "0.5"
 chrono = { workspace = true }
+clap = { workspace = true }
 dotenvy = { workspace = true }
 futures-util = { workspace = true }
 actix-web-httpauth = "0.8"

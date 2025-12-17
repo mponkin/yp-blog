@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use actix_cors::Cors;
 use actix_web::{App, HttpServer, middleware::Logger, web};
 use tonic::include_proto;
 use tracing::{info, trace};
@@ -30,8 +31,18 @@ mod presentation;
 
 include_proto!("blog");
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)] // Опциональные метаданные
+struct Args {
+    #[arg(short = 'p', long = "port", default_value_t = 3000)]
+    port: u16,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
+    let args = Args::parse();
     dotenvy::dotenv()?;
     init_logging();
     info!("Starting blog server...");
@@ -51,14 +62,20 @@ async fn main() -> Result<(), AppError> {
     let auth_service = Arc::new(AuthService::new(user_repo, jwt_service.clone()));
     let blog_service = Arc::new(BlogService::new(post_repo));
 
-    let host = "127.0.0.1";
-    let port = 8080;
-    trace!("Starting HTTP server on {host}:{port}");
+    let host = "0.0.0.0";
+    trace!("Starting HTTP server on {host}:{}", args.port);
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_header()
+            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+            .max_age(3600);
+
         App::new().service(
             web::scope("/api")
                 .wrap(Logger::default())
+                .wrap(cors)
                 .app_data(web::Data::new(jwt_service.clone()))
                 .service(
                     web::scope("/auth")
@@ -86,7 +103,7 @@ async fn main() -> Result<(), AppError> {
                 ),
         )
     })
-    .bind((host, port))?
+    .bind((host, args.port))?
     .run()
     .await?;
 
