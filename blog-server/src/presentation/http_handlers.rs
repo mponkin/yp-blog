@@ -5,6 +5,7 @@ use actix_web::{
     http::StatusCode,
     web::{self, Data},
 };
+use serde::Serialize;
 
 use crate::{
     application::{auth_service::AuthService, blog_service::BlogService},
@@ -124,9 +125,16 @@ impl ResponseError for AppError {
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
-        HttpResponse::build(status).json(serde_json::json!({
-            "error": self.to_string(),
-            "status": status.as_u16(),
-        }))
+        let description = ErrorDescription {
+            error: self.to_string(),
+            status: status.as_u16(),
+        };
+        HttpResponse::build(status).json(serde_json::json!(description))
     }
+}
+
+#[derive(Debug, Serialize)]
+struct ErrorDescription {
+    error: String,
+    status: u16,
 }

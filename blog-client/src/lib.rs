@@ -1,14 +1,17 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+//! Blog-client library
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#![deny(unreachable_pub)]
+#![warn(missing_docs)]
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub mod blog_client;
+pub mod error;
+mod grpc_client;
+mod http_client;
+
+/// Available trqnsports for blog clients
+pub enum Transport {
+    /// Http client with server address
+    Http(String),
+    /// Grpc client with server address
+    Grpc(String),
 }

@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, middleware::Logger, web};
+use clap::Parser;
 use tonic::include_proto;
 use tracing::{info, trace};
 
@@ -30,8 +31,6 @@ mod infrastructure;
 mod presentation;
 
 include_proto!("blog");
-
-use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)] // Опциональные метаданные

@@ -3,11 +3,21 @@ name = "blog-client"
 version = "0.1.0"
 edition = "2024"
 
+
 [dependencies]
-tonic = { version = "0.14" }
-prost = "0.14"
-tonic-prost = "0.14"
-tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+chrono = { workspace = true }
+clap = { workspace = true }
+prost = { workspace = true }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
+url = "2"
+
 
 [build-dependencies]
-tonic-prost-build = "0.14"
+tonic-prost-build = { workspace = true }
