@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package blog;
 
 message RegisterRequest {
@@ -9,19 +11,12 @@ message RegisterRequest {
 }
 
 message AuthResponse {
-  bool success = 1;
-  string message = 2;
-  string token = 3;
+  string token = 1;
 }
 
 message LoginRequest {
-  string email = 1; 
+  string username = 1; 
   string password = 2;
-}
-
-message User {
-  int64 id = 1;
-  string username = 2;
 }
 
 message CreatePostRequest {
@@ -31,17 +26,15 @@ message CreatePostRequest {
 
 message Post {
   int64 id = 1;
-  User author = 2; 
   string title = 3;
   string content = 4;
+  int64 author_id = 2; 
   int64 created_at = 5; // Unix timestamp
   int64 updated_at = 6; // Unix timestamp
 }
 
 message PostResponse {
-  bool success = 1;
-  string message = 2;
-  Post post = 3;
+  Post post = 1;
 }
 
 message GetPostRequest {
@@ -58,12 +51,16 @@ message DeletePostRequest {
   int64 post_id = 1;
 }
 
-message ListPostsRequest {}
+message ListPostsRequest {
+  int64 limit = 1;
+  int64 offset = 2;
+}
 
 message ListPostsResponse {
-  bool success = 1;
-  string message = 2;
-  repeated Post posts = 3;
+  repeated Post posts = 1;
+  int64 limit = 2;
+  int64 offset = 3;
+  int64 total_posts_count = 4;
 }
 
 service BlogService {
@@ -73,6 +70,6 @@ service BlogService {
   rpc CreatePost (CreatePostRequest) returns (PostResponse);
   rpc GetPost (GetPostRequest) returns (PostResponse);
   rpc UpdatePost (UpdatePostRequest) returns (PostResponse);
-  rpc DeletePost (DeletePostRequest) returns (PostResponse);
+  rpc DeletePost (DeletePostRequest) returns (google.protobuf.Empty);
   rpc ListPosts (ListPostsRequest) returns (ListPostsResponse);
 }

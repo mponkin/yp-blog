@@ -16,20 +16,24 @@ use crate::{
     },
 };
 
-pub async fn register<'a>(
-    auth_service: Data<Arc<AuthService<'a>>>,
+pub async fn register(
+    auth_service: Data<Arc<AuthService>>,
     request: web::Json<CreateUserParams>,
 ) -> Result<HttpResponse, AppError> {
-    let user_and_token = auth_service.register(request.0).await?;
+    let user_and_token = auth_service
+        .register(request.0.username, request.0.email, request.0.password)
+        .await?;
 
     Ok(HttpResponseBuilder::new(StatusCode::CREATED).json(user_and_token))
 }
 
-pub async fn login<'a>(
-    auth_service: Data<Arc<AuthService<'a>>>,
+pub async fn login(
+    auth_service: Data<Arc<AuthService>>,
     request: web::Json<LoginParams>,
 ) -> Result<HttpResponse, AppError> {
-    let user_and_token = auth_service.login(request.0).await?;
+    let user_and_token = auth_service
+        .login(request.0.username, request.0.password)
+        .await?;
 
     Ok(HttpResponseBuilder::new(StatusCode::OK).json(user_and_token))
 }

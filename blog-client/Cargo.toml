@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 async-trait = "0.1"
+blog-grpc-api = { path = "../blog-grpc-api" }
 chrono = { workspace = true }
 clap = { workspace = true }
 prost = { workspace = true }
@@ -17,7 +18,3 @@ tokio = { workspace = true }
 tonic = { workspace = true }
 tonic-prost = { workspace = true }
 url = "2"
-
-
-[build-dependencies]
-tonic-prost-build = { workspace = true }

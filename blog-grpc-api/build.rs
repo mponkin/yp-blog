@@ -1,12 +1,12 @@
 use tonic_prost_build::configure;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("cargo:rerun-if-changed=../proto/blog.proto");
+    println!("cargo:rerun-if-changed=proto/blog.proto");
 
     configure()
         .build_client(true)
-        .build_server(false)
-        .compile_protos(&["../proto/blog.proto"], &["../proto"])
+        .build_server(true)
+        .compile_protos(&["proto/blog.proto"], &["proto"])
         .unwrap();
 
     Ok(())

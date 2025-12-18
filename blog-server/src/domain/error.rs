@@ -1,4 +1,4 @@
-use std::env::VarError;
+use std::{env::VarError, net::AddrParseError};
 
 use sqlx::migrate::MigrateError;
 use thiserror::Error;
@@ -33,6 +33,10 @@ pub enum AppError {
     InvalidToken,
     #[error("I/O error {0}")]
     Io(#[from] std::io::Error),
+    #[error("Unable to parse address {0}")]
+    InvalidAddress(#[from] AddrParseError),
+    #[error("GRPC error {0}")]
+    GrpcTransport(#[from] tonic::transport::Error),
 }
 
 impl From<argon2::password_hash::Error> for AppError {

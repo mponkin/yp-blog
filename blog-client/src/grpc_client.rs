@@ -1,11 +1,7 @@
 //! Blog client using GRPC protocol
-#![allow(unused)]
-
-use tonic::include_proto;
-include_proto!("blog");
 
 use crate::{
-    blog_client::{BlogClient, Post, PostsResponse},
+    blog_client::{BlogClient, PostsResponse},
     error::BlogClientError,
 };
 

@@ -192,13 +192,13 @@ struct UserAndToken {
 }
 
 #[derive(Debug, Serialize)]
-pub struct CreatePostParams {
+struct CreatePostParams {
     pub title: String,
     pub content: String,
 }
 
 #[derive(Debug, Serialize)]
-pub struct UpdatePostParams {
+struct UpdatePostParams {
     pub title: String,
     pub content: String,
 }
