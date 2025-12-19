@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use blog_grpc_api::{
-    AuthResponse, CreatePostRequest, DeletePostRequest, GetPostRequest, ListPostsRequest,
-    ListPostsResponse, LoginRequest, PostResponse, RegisterRequest, UpdatePostRequest,
+    AuthResponse, CreatePostRequest, DeletePostRequest, GetPostRequest, GetPostsRequest,
+    GetPostsResponse, LoginRequest, PostResponse, RegisterRequest, UpdatePostRequest,
     blog_service_server::BlogService,
 };
 use tonic::async_trait;
@@ -115,19 +115,18 @@ impl BlogService for GrpcService {
             .await?;
         Ok(().into())
     }
-    async fn list_posts(
+    async fn get_posts(
         &self,
-        request: tonic::Request<ListPostsRequest>,
-    ) -> Result<tonic::Response<ListPostsResponse>, tonic::Status> {
+        request: tonic::Request<GetPostsRequest>,
+    ) -> Result<tonic::Response<GetPostsResponse>, tonic::Status> {
         let params = request.into_inner();
-        let (posts, total_posts_count) = self
-            .posts_service
-            .get_posts(params.limit, params.offset)
-            .await?;
-        Ok(ListPostsResponse {
+        let limit = params.limit.unwrap_or(10);
+        let offset = params.offset.unwrap_or(0);
+        let (posts, total_posts_count) = self.posts_service.get_posts(limit, offset).await?;
+        Ok(GetPostsResponse {
             posts: posts.into_iter().map(to_grpc_post).collect(),
-            limit: params.limit,
-            offset: params.offset,
+            limit,
+            offset,
             total_posts_count: total_posts_count as i64,
         }
         .into())

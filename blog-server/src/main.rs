@@ -107,9 +107,9 @@ async fn main() -> Result<(), AppError> {
         _ = signal::ctrl_c() => {
             info!("Ctrl+C received. Shutting down...");
 
-            let _ = http_server_handle.stop(true);
-
             let _ = grpc_shutdown_tx.send(());
+
+            let _ = http_server_handle.stop(true).await;
 
             let (http_res, grpc_res) = tokio::join!(http_task, grpc_task);
 
