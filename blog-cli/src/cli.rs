@@ -6,7 +6,7 @@ pub struct Cli {
     #[command(subcommand)]
     pub command: Command,
 
-    #[arg(long)]
+    #[arg(long, global = true)]
     pub grpc: bool,
 
     #[arg(long)]

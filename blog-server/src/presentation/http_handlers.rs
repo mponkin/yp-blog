@@ -102,7 +102,7 @@ pub async fn get_posts(
 
     let response = GetPostsResponse {
         posts,
-        total: total_posts_count,
+        total_posts: total_posts_count,
         limit: params.limit,
         offset: params.offset,
     };

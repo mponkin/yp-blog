@@ -1,7 +1,7 @@
 use chrono::{TimeDelta, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
-use tracing::{trace, warn};
+use tracing::trace;
 
 use crate::domain::error::AppError;
 
@@ -44,7 +44,6 @@ impl JwtService {
     }
 
     pub fn verify_token(&self, token: &str) -> Result<Claims, AppError> {
-        warn!("verify_token {token}");
         let validation = Validation::default();
         decode::<Claims>(&token, &self.decoding_key, &validation)
             .map(|data| data.claims)

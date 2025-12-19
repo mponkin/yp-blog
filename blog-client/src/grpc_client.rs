@@ -55,10 +55,9 @@ impl BlogApiClient for GrpcClient {
                 }
                 .into_request(),
             )
-            .await?
-            .into_inner();
+            .await?;
 
-        Ok(response.token)
+        Ok(response.into_inner().token)
     }
 
     async fn login(&self, username: String, password: String) -> Result<String, BlogClientError> {
@@ -66,10 +65,9 @@ impl BlogApiClient for GrpcClient {
 
         let response = client
             .login(LoginRequest { username, password }.into_request())
-            .await?
-            .into_inner();
+            .await?;
 
-        Ok(response.token)
+        Ok(response.into_inner().token)
     }
 
     async fn create_post(
@@ -86,13 +84,12 @@ impl BlogApiClient for GrpcClient {
                     .into_request()
                     .with_token_auth(token)?,
             )
-            .await?
-            .into_inner();
+            .await?;
 
         let post = response
+            .into_inner()
             .post
             .ok_or_else(|| BlogClientError::GrpcFieldNotSet(String::from("post")))?;
-
         into_domain_post(post)
     }
 
@@ -101,13 +98,12 @@ impl BlogApiClient for GrpcClient {
 
         let response = client
             .get_post(GetPostRequest { post_id: id }.into_request())
-            .await?
-            .into_inner();
+            .await?;
 
         let post = response
+            .into_inner()
             .post
             .ok_or_else(|| BlogClientError::GrpcFieldNotSet(String::from("post")))?;
-
         into_domain_post(post)
     }
 
@@ -130,13 +126,12 @@ impl BlogApiClient for GrpcClient {
                 .into_request()
                 .with_token_auth(token)?,
             )
-            .await?
-            .into_inner();
+            .await?;
 
         let post = response
+            .into_inner()
             .post
             .ok_or_else(|| BlogClientError::GrpcFieldNotSet(String::from("post")))?;
-
         into_domain_post(post)
     }
 
@@ -149,8 +144,7 @@ impl BlogApiClient for GrpcClient {
                     .into_request()
                     .with_token_auth(token)?,
             )
-            .await?
-            .into_inner();
+            .await?;
 
         Ok(())
     }

@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use blog_client::{Transport, blog_client::BlogClient};
+use blog_client::{Transport, blog_client::BlogClient, error::BlogClientError};
 use clap::Parser;
 
 use crate::{
@@ -17,8 +17,19 @@ async fn main() -> Result<(), CliError> {
 
     let client = BlogClient::new(transport).await?;
 
-    let message = handle_command(client, args.command).await?;
-    println!("{message}");
+    let result = handle_command(client, args.command).await;
+
+    match result {
+        Ok(message) => println!("OK: {message}"),
+        Err(e) => {
+            if is_token_invalid(&e) {
+                eprintln!("Token is invalid, authorization required for next use");
+                delete_token()?;
+            }
+            return Err(e);
+        }
+    }
+
     Ok(())
 }
 
@@ -77,7 +88,7 @@ async fn handle_command(mut client: BlogClient, command: Command) -> Result<Stri
         }
         cli::Command::Logout => {
             delete_token()?;
-            Ok(format!("User logged out"))
+            Ok("User logged out".to_string())
         }
     }
 }
@@ -133,4 +144,12 @@ fn get_transport(grpc: bool, server: &Option<String>) -> Transport {
                 .unwrap_or(format!("{DEFAULT_ADDRESS}:{DEFAULT_HTTP_PORT}")),
         )
     }
+}
+
+fn is_token_invalid(error: &CliError) -> bool {
+    matches!(
+        error,
+        CliError::ClientError(BlogClientError::InvalidToken)
+            | CliError::ClientError(BlogClientError::InvalidCredentials)
+    )
 }

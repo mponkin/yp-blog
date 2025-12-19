@@ -44,7 +44,7 @@ fn default_offset() -> i64 {
 #[derive(Serialize)]
 pub struct GetPostsResponse {
     pub posts: Vec<Post>,
-    pub total: u64,
+    pub total_posts: u64,
     pub limit: i64,
     pub offset: i64,
 }
