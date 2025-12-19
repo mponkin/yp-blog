@@ -1,4 +1,6 @@
-use actix_web::{Error, HttpMessage, dev::ServiceRequest};
+use std::sync::Arc;
+
+use actix_web::{Error, HttpMessage, dev::ServiceRequest, web};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 
 use crate::{
@@ -20,7 +22,7 @@ pub async fn jwt_validator(
     auth: BearerAuth,
 ) -> Result<ServiceRequest, (Error, ServiceRequest)> {
     match request
-        .app_data::<JwtService>()
+        .app_data::<web::Data<Arc<JwtService>>>()
         .map(|jwt_service| jwt_service.verify_token(auth.token()))
     {
         Some(Ok(claims)) => {

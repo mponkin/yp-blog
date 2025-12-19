@@ -1,0 +1,21 @@
+meta {
+  name: HTTP list posts
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://127.0.0.1:8080/api/posts?limit=2&offset=0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  limit: 2
+  offset: 0
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

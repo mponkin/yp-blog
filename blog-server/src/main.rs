@@ -36,7 +36,7 @@ mod presentation;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(long = "http_port", default_value_t = 3000)]
+    #[arg(long = "http_port", default_value_t = 8080)]
     http_port: u16,
     #[arg(long = "grpc_port", default_value_t = 50051)]
     grpc_port: u16,
@@ -153,11 +153,10 @@ fn setup_http_server(
             .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
             .max_age(3600);
 
-        App::new().service(
+        App::new().app_data(jwt_service.clone()).service(
             web::scope("/api")
                 .wrap(Logger::default())
                 .wrap(cors)
-                .app_data(jwt_service.clone())
                 .service(
                     web::scope("/auth")
                         .app_data(auth_service.clone())
@@ -166,20 +165,22 @@ fn setup_http_server(
                 )
                 .service(
                     web::scope("/posts")
-                        .app_data(web::Data::new(blog_service.clone()))
-                        // no auth
+                        .app_data(blog_service.clone())
+                        .route("", web::get().to(get_posts))
                         .service(
-                            web::scope("")
-                                .route("/{id}", web::get().to(get_post))
-                                .route("", web::get().to(get_posts)),
-                        )
-                        // auth required
-                        .service(
-                            web::scope("")
+                            web::resource("")
                                 .wrap(HttpAuthentication::bearer(jwt_validator))
-                                .route("", web::post().to(create_post))
-                                .route("/{id}", web::put().to(update_post))
-                                .route("/{id}", web::delete().to(delete_post)),
+                                .route(web::post().to(create_post)),
+                        )
+                        .service(
+                            web::scope("/{id}")
+                                .route("", web::get().to(get_post))
+                                .service(
+                                    web::resource("")
+                                        .wrap(HttpAuthentication::bearer(jwt_validator))
+                                        .route(web::put().to(update_post))
+                                        .route(web::delete().to(delete_post)),
+                                ),
                         ),
                 ),
         )

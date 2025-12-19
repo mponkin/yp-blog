@@ -1,7 +1,7 @@
-use chrono::{DateTime, TimeDelta, Utc};
+use chrono::{TimeDelta, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
-use tracing::trace;
+use tracing::{trace, warn};
 
 use crate::domain::error::AppError;
 
@@ -9,7 +9,7 @@ use crate::domain::error::AppError;
 pub struct Claims {
     pub user_id: i64,
     pub username: String,
-    pub exp: DateTime<Utc>,
+    pub exp: i64,
 }
 
 pub struct JwtService {
@@ -37,13 +37,14 @@ impl JwtService {
         let claims = Claims {
             user_id,
             username,
-            exp: expiration_time,
+            exp: expiration_time.timestamp_millis(),
         };
 
         encode(&Header::default(), &claims, &self.encoding_key).map_err(AppError::from)
     }
 
     pub fn verify_token(&self, token: &str) -> Result<Claims, AppError> {
+        warn!("verify_token {token}");
         let validation = Validation::default();
         decode::<Claims>(&token, &self.decoding_key, &validation)
             .map(|data| data.claims)

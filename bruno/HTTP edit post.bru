@@ -1,0 +1,31 @@
+meta {
+  name: HTTP edit post
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://127.0.0.1:8080/api/posts/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1
+}
+
+auth:bearer {
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyNCwidXNlcm5hbWUiOiJicnVubyIsImV4cCI6MTc2NjIzNzMxMDI0Mn0.GrBCDFb_SSmn-tvb4SwWKdCBDBku9y7D5oCYZiXO-54
+}
+
+body:json {
+  {
+    "title": "Updated 1st post",
+    "content": "Пупупу"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

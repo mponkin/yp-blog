@@ -1,0 +1,27 @@
+meta {
+  name: HTTP create post
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://127.0.0.1:8080/api/posts
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyNCwidXNlcm5hbWUiOiJicnVubyIsImV4cCI6MTc2NjIzNzMxMDI0Mn0.GrBCDFb_SSmn-tvb4SwWKdCBDBku9y7D5oCYZiXO-54
+}
+
+body:json {
+  {
+    "title": "Third post",
+    "content": "สวัสดี"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

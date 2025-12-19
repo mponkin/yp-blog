@@ -44,7 +44,7 @@ pub async fn create_post(
     post_data: web::Json<CreatePostParams>,
 ) -> Result<HttpResponse, AppError> {
     let user_id = try_get_user_id(req)?;
-    let params = post_data.into_inner();
+    let params: CreatePostParams = post_data.into_inner();
 
     let post = blog_service
         .create_post(params.title, params.content, user_id)

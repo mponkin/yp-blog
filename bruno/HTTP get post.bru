@@ -1,0 +1,20 @@
+meta {
+  name: HTTP get post
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://127.0.0.1:8080/api/posts/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
