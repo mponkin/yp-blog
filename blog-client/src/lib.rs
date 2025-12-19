@@ -3,6 +3,7 @@
 #![deny(unreachable_pub)]
 #![warn(missing_docs)]
 
+mod api_client;
 pub mod blog_client;
 pub mod error;
 mod grpc_client;

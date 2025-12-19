@@ -9,6 +9,7 @@ async-trait = "0.1"
 blog-grpc-api = { path = "../blog-grpc-api" }
 chrono = { workspace = true }
 clap = { workspace = true }
+enum_dispatch = "0.3"
 prost = { workspace = true }
 reqwest = { version = "0.12", features = ["json"] }
 serde = { workspace = true }

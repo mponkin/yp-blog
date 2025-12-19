@@ -1,18 +1,17 @@
 use std::{collections::HashMap, time::Duration};
 
-use chrono::{DateTime, Utc};
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    blog_client::{BlogClient, Post, PostsResponse, RequireToken},
+    api_client::BlogApiClient,
+    blog_client::{Post, PostsCollection},
     error::BlogClientError,
 };
 
 pub(crate) struct HttpClient {
     base_url: Url,
     client: Client,
-    token: Option<String>,
 }
 
 impl HttpClient {
@@ -22,24 +21,12 @@ impl HttpClient {
             .timeout(Duration::from_secs(10))
             .build()?;
 
-        Ok(Self {
-            base_url,
-            client,
-            token: None,
-        })
+        Ok(Self { base_url, client })
     }
 }
 
 #[async_trait::async_trait]
-impl BlogClient for HttpClient {
-    fn set_token(&mut self, token: String) {
-        self.token = Some(token)
-    }
-
-    fn get_token(&self) -> Option<String> {
-        self.token.clone()
-    }
-
+impl BlogApiClient for HttpClient {
     async fn register(
         &self,
         username: String,
@@ -71,7 +58,12 @@ impl BlogClient for HttpClient {
         Ok(user_and_token.token)
     }
 
-    async fn create_post(&self, title: String, content: String) -> Result<Post, BlogClientError> {
+    async fn create_post(
+        &self,
+        token: &str,
+        title: String,
+        content: String,
+    ) -> Result<Post, BlogClientError> {
         let url = self.base_url.join("/api/posts")?;
 
         let params = CreatePostParams { title, content };
@@ -79,7 +71,7 @@ impl BlogClient for HttpClient {
         let response = self
             .client
             .post(url)
-            .bearer_auth(self.require_token()?)
+            .bearer_auth(token)
             .json(&params)
             .send()
             .await?;
@@ -99,6 +91,7 @@ impl BlogClient for HttpClient {
 
     async fn update_post(
         &self,
+        token: &str,
         id: i64,
         title: String,
         content: String,
@@ -110,7 +103,7 @@ impl BlogClient for HttpClient {
         let response = self
             .client
             .put(url)
-            .bearer_auth(self.require_token()?)
+            .bearer_auth(token)
             .json(&params)
             .send()
             .await?;
@@ -119,14 +112,10 @@ impl BlogClient for HttpClient {
         Ok(post)
     }
 
-    async fn delete_post(&self, id: i64) -> Result<(), BlogClientError> {
+    async fn delete_post(&self, token: &str, id: i64) -> Result<(), BlogClientError> {
         let url = self.base_url.join(format!("/api/posts/{id}").as_str())?;
 
-        self.client
-            .delete(url)
-            .bearer_auth(self.require_token()?)
-            .send()
-            .await?;
+        self.client.delete(url).bearer_auth(token).send().await?;
 
         Ok(())
     }
@@ -135,7 +124,7 @@ impl BlogClient for HttpClient {
         &self,
         limit: Option<u64>,
         offset: Option<u64>,
-    ) -> Result<PostsResponse, BlogClientError> {
+    ) -> Result<PostsCollection, BlogClientError> {
         let url = self.base_url.join("/api/posts")?;
 
         let mut query = HashMap::new();
@@ -148,57 +137,38 @@ impl BlogClient for HttpClient {
         }
 
         let response = self.client.get(url).query(&query).send().await?;
-        let posts_response: PostsResponse = response.json().await?;
+        let posts_response: PostsCollection = response.json().await?;
 
         Ok(posts_response)
     }
 }
 
-impl RequireToken for HttpClient {
-    fn require_token(&self) -> Result<&str, BlogClientError> {
-        match &self.token {
-            Some(t) => Ok(t.as_str()),
-            None => Err(BlogClientError::TokenNotSet),
-        }
-    }
-}
-
-#[derive(Debug, Deserialize)]
-struct User {
-    pub id: i64,
-    pub username: String,
-    pub email: String,
-    pub password_hash: String,
-    pub created_at: DateTime<Utc>,
-}
-
 #[derive(Debug, Serialize)]
 struct CreateUserParams {
-    pub username: String,
-    pub email: String,
-    pub password: String,
+    username: String,
+    email: String,
+    password: String,
 }
 
 #[derive(Debug, Serialize)]
 struct LoginParams {
-    pub username: String,
-    pub password: String,
+    username: String,
+    password: String,
 }
 
 #[derive(Debug, Deserialize)]
 struct UserAndToken {
-    pub user: User,
-    pub token: String,
+    token: String,
 }
 
 #[derive(Debug, Serialize)]
 struct CreatePostParams {
-    pub title: String,
-    pub content: String,
+    title: String,
+    content: String,
 }
 
 #[derive(Debug, Serialize)]
 struct UpdatePostParams {
-    pub title: String,
-    pub content: String,
+    title: String,
+    content: String,
 }
