@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, command};
+use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
 #[command(author, version, about = "Blog CLI Tool", long_about = None)]
