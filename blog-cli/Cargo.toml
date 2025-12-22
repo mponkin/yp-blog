@@ -10,3 +10,5 @@ clap = { workspace = true }
 dotenvy = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

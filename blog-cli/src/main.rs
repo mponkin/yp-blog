@@ -1,4 +1,6 @@
 use std::{fs, path::Path};
+use tracing::{info, trace, warn};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 
 use blog_client::{Transport, blog_client::BlogClient, error::BlogClientError};
 use clap::Parser;
@@ -13,6 +15,7 @@ mod error;
 #[tokio::main]
 async fn main() -> Result<(), CliError> {
     let args = Cli::parse();
+    init_logging();
     let transport = get_transport(args.grpc, &args.server);
 
     let client = BlogClient::new(transport).await?;
@@ -20,10 +23,10 @@ async fn main() -> Result<(), CliError> {
     let result = handle_command(client, args.command).await;
 
     match result {
-        Ok(message) => println!("OK: {message}"),
+        Ok(message) => info!("OK: {message}"),
         Err(e) => {
             if is_token_invalid(&e) {
-                eprintln!("Token is invalid, authorization required for next use");
+                warn!("Token is invalid, authorization required for next use");
                 delete_token()?;
             }
             return Err(e);
@@ -152,4 +155,17 @@ fn is_token_invalid(error: &CliError) -> bool {
         CliError::ClientError(BlogClientError::InvalidToken)
             | CliError::ClientError(BlogClientError::InvalidCredentials)
     )
+}
+
+pub fn init_logging() {
+    tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_target(false)
+                .with_timer(tracing_subscriber::fmt::time::ChronoUtc::rfc_3339()),
+        )
+        .init();
+
+    trace!("Logging initialized");
 }
