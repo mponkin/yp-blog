@@ -155,8 +155,8 @@ fn setup_http_server(
 
         App::new().app_data(jwt_service.clone()).service(
             web::scope("/api")
-                .wrap(Logger::default())
                 .wrap(cors)
+                .wrap(Logger::default())
                 .service(
                     web::scope("/auth")
                         .app_data(auth_service.clone())
