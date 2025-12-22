@@ -45,7 +45,7 @@ struct Args {
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
     let args = Args::parse();
-    dotenvy::dotenv()?;
+    dotenvy::dotenv().ok();
     init_logging();
     info!("Starting blog server...");
 
